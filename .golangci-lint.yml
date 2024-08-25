@@ -1,0 +1,113 @@
+
+run:
+  # Timeout for analysis
+  timeout: 3m
+  go: "1.22.3"
+
+linters:
+  disable-all: true
+  enable:
+    # Linters enabled by golangci-lint by default
+    - errcheck # checking for unchecked errors, these unchecked errors can be critical bugs in some cases
+    - gosimple # specializes in simplifying a code
+    - govet # reports suspicious constructs, such as Printf calls whose arguments do not align with the format string
+    - ineffassign # detects when assignments to existing variables are not used
+    - staticcheck # is a go vet on steroids, applying a ton of static analysis checks
+    - typecheck # like the front-end of a Go compiler, parses and type-checks Go code
+    - unused # checks for unused constants, variables, functions and types
+
+    # Additional linters
+    - bodyclose # checks whether HTTP response body is closed successfully
+    - cyclop # checks function and package cyclomatic complexity
+    - durationcheck # checks for two durations multiplied together
+    - errname # checks that sentinel errors are prefixed with the Err and error types are suffixed with the Error
+    - gci # Controls go package import order and make it always deterministic.
+    - goconst # finds repeated strings that could be replaced by a constant
+    - gocyclo # computes and checks the cyclomatic complexity of functions
+    - godot # checks if comments end in a period
+    - gocognit # computes and checks the cognitive complexity of functions
+    - gofmt # checks if the code is gofmted
+    - goimports # in addition to fixing imports, goimports also formats your code in the same style as gofmt
+    - mnd # detects magic numbers
+    - gomodguard # allow and block lists linter for direct Go module dependencies. This is different from depguard where there are different block types for example version constraints and module recommendations
+    - lll # reports long lines
+    - nakedret # finds naked returns in functions greater than a specified function length
+    - nestif # reports deeply nested if statements
+    - nilerr # finds the code that returns nil even if it checks that the error is not nil
+    - nilnil # checks that there is no simultaneous return of nil error and an invalid value
+    - revive # fast, configurable, extensible, flexible, and beautiful linter for Go, drop-in replacement of golint
+    - rowserrcheck # checks whether Err of rows is checked successfully
+    - sloglint # ensure consistent code style when using log/slog
+    - sqlclosecheck # checks that sql.Rows and sql.Stmt are closed
+    - tenv # detects using os.Setenv instead of t.Setenv since Go1.17
+    - testableexamples # checks if examples are testable (have an expected output)
+    - unconvert # removes unnecessary type conversions
+    - unparam # reports unused function parameters
+
+linters-settings:
+  cyclop:
+    # The maximal code complexity to report.
+    # Default: 10
+    max-complexity: 30
+    # The maximal average package complexity.
+    # If it's higher than 0.0 (float) the check is enabled
+    # Default: 0.0
+    package-average: 10.0
+
+  errcheck:
+    # Report about not checking of errors in type assertions: `a := b.(MyStruct)`.
+    check-type-assertions: true
+
+    # Make sure to match the linter settings with the format commands in the taskfiles.
+  gci:
+    # Section configuration to compare against.
+    # Section names are case-insensitive and may contain parameters in ().
+    # The default order of sections is `standard > default > custom > blank > dot > alias > localmodule`,
+    # If `custom-order` is `true`, it follows the order of `sections` option.
+    # Default: ["standard", "default"]
+    sections:
+      - standard # Standard section: captures all standard packages.
+      - default # Default section: contains all imports that could not be matched to another section type.
+      - localmodule # Local module section: contains all local packages. This section is not present unless explicitly enabled.
+    skip-generated: true
+    custom-order: true # Uses the order as specified above.
+
+  gocognit:
+    # Minimal code complexity to report.
+    # Default: 30 (but we recommend 10-20)
+    min-complexity: 20
+
+  goimports:
+    # Local prefix to use for imports.
+    local-prefixes: "github.com/DC2094"
+
+  gomodguard:
+    blocked:
+      # List of blocked modules.
+      # Default: []
+      modules:
+        - github.com/golang/protobuf:
+            recommendations:
+              - google.golang.org/protobuf
+            reason: "see https://developers.google.com/protocol-buffers/docs/reference/go/faq#modules"
+        - github.com/satori/go.uuid:
+            recommendations:
+              - github.com/google/uuid
+            reason: "satori's package is not maintained"
+  govet:
+    enable-all: true
+    disable:
+      - fieldalignment # too strict, as it hurts readability
+
+  mnd:
+    # Minimal number of occurrences to report.
+    ignored-numbers:
+      - "1024"
+      - "2048"
+
+  nakedret:
+    # Make an issue if func has naked returns.
+    max-func-lines: 0
+
+  tenv:
+    all: true
