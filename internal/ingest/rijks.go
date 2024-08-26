@@ -2,10 +2,12 @@ package ingest
 
 import (
 	"encoding/xml"
+	"errors"
 	"fmt"
 	"io"
 	"net/http"
 	"net/url"
+
 	"rijks/internal/models"
 )
 
@@ -13,6 +15,8 @@ const (
 	//baseURL      = "https://www.rijksmuseum.nl/api/oai/"
 	getRecordURL = "?verb=GetRecord&metadataPrefix=dc&identifier="
 )
+
+var ErrRecordNotFound = errors.New("record not found")
 
 func (rh *RijksHandler) buildGetRecordURL(identifier string) (*url.URL, error) {
 	requestURL, err := url.Parse(fmt.Sprintf("%s/%s%s%s", rh.baseURL, rh.apiKey, getRecordURL, identifier))
@@ -69,6 +73,12 @@ func (rh *RijksHandler) GetRecord(identifier string) (*models.GetRecordResponse,
 	err = xml.Unmarshal(body, getRecordResponse)
 	if err != nil {
 		return nil, err
+	}
+	if getRecordResponse.Error != nil {
+		if getRecordResponse.Error.Code == "idDoesNotExist" {
+			return nil, fmt.Errorf("GetRecord: %s %w", identifier, ErrRecordNotFound)
+		}
+		return nil, fmt.Errorf("GetRecord: %s %v", identifier, getRecordResponse.Error)
 	}
 
 	return getRecordResponse, nil
