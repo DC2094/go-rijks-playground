@@ -62,3 +62,8 @@ type OaiDc struct {
 	Rights      string   `xml:"http://purl.org/dc/elements/1.1/ rights"`
 	Coverage    string   `xml:"http://purl.org/dc/elements/1.1/ coverage"`
 }
+
+type ListRecordsResponse struct {
+	Records         []Record `xml:"record"`
+	ResumptionToken string   `xml:"resumptionToken"`
+}
